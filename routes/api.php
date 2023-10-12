@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CardController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\DeckController;
+use App\Http\Controllers\ProgressController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
+/*|--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
@@ -30,5 +30,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('api.auth.logout');
         Route::post('update-password', [AuthController::class, 'updatePassword'])->name('api.auth.update-password');
     });
+
+    Route::resource('decks', DeckController::class);
+
+    Route::prefix('decks/{deck}')->group(function () {
+        Route::resource('cards', CardController::class);
+    });
+
+    Route::post('progress/{card}', [ProgressController::class, 'trackProgress'])->name('progress.track');
+    Route::get('progress/{card}', [ProgressController::class, 'getProgress'])->name('progress.get');
 
 });
