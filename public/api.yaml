@@ -1,0 +1,306 @@
+openapi: 3.0.0
+info:
+  title: Laravel api
+  description: laravel api
+
+servers:
+  - url: http://localhost/api
+    description: local server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Link:
+      type: object
+      properties:
+        url:
+          type: string
+        label:
+          type: string
+        active:
+          type: boolean
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        email_verified_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserInput:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        password_confirmation:
+          type: string
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+        - password_confirmation
+
+    Users:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        first_page_url:
+          type: string
+        from:
+          type: string
+        last_page:
+          type: integer
+        last_page_url:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        next_page_url:
+          type: string
+        path:
+          type: string
+        per_page:
+          type: integer
+        prev_page_url:
+          type: string
+        to:
+          type: string
+        total:
+          type: integer
+
+    DeletedRecord:
+      type: object
+      properties:
+        message:
+          type: string
+
+    AuthLoginInput: 
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+            type: string
+      required:
+        - email
+        - password
+  
+    Auth:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Auth login.
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/AuthLoginInput'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema: 
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Auth'
+
+  /auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Auth logout.
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+
+  /auth/refresh:
+    post:
+      tags:
+        - auth
+      summary: Auth refresh.
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema: 
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Auth'
+
+  /users/index:
+    get:
+      tags:
+        - users
+      summary: Returns a list of users.
+      parameters:
+        - { in: query, name: per_page, schema: { type: integer } }
+        - { 
+            in: query, 
+            name: filter, 
+            schema: { 
+              type: object, 
+              additionalProperties: { type: object },
+              example: { filter: { term: test } }
+            }
+          }
+        - { in: query, name: sort, schema: { type: string, enum: [id, first_name, last_name, email, email_verified_at, created_at, updated_at ] } }
+        - { in: query, name: order, schema: { type: string, enum: [ asc, desc ] } }
+      responses:
+        '200': 
+          description: A object paginated of users
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Users'
+
+  /users/{id}/show:
+    get:
+      tags:
+        - users
+      summary: Return user data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/User'
+
+  /users/{id}/delete:
+    delete:
+      tags:
+        - users
+      summary: Delete user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/DeletedRecord'
+
+  /users/store:
+    post:
+      tags:
+        - users
+      summary: Create user
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/User'
+
+  /users/update/{id}:
+    put:
+      tags:
+        - users
+      summary: Update user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/User'
