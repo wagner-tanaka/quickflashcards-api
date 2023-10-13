@@ -39,6 +39,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::resource('cards', CardController::class)->except(['index', 'store']);
+    Route::get('/decks/{deck}/cards/due', [CardController::class, 'getDueCards']);
+
+    Route::post('/cards/{id}/review', [CardController::class, 'reviewCard']);
 
     Route::post('progress/{card}', [ProgressController::class, 'trackProgress'])->name('progress.track');
     Route::get('progress/{card}', [ProgressController::class, 'getProgress'])->name('progress.get');

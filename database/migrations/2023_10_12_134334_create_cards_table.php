@@ -16,7 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('deck_id');
             $table->text('front');
             $table->text('back');
-            $table->string('image_path')->nullable();
+            $table->integer('review_level')->default(1);
+            $table->date('last_reviewed_date')->nullable();
+            $table->date('next_review_date')->nullable();
             $table->timestamps();
 
             $table->foreign('deck_id')->references('id')->on('decks')->onDelete('cascade');

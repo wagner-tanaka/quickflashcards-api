@@ -53,4 +53,48 @@ class CardController extends Controller
         $card->delete();
         return response()->json(['message' => 'Card deleted successfully'], 200);
     }
+
+    public function getDueCards(Deck $deck)
+    {
+        $dueCards = $deck->cards()->where('next_review_date', '<=', now())->get();
+        return response()->json($dueCards);
+    }
+
+// Update a card's review data based on user feedback
+    public function reviewCard(Request $request, $id)
+    {
+        $card = Card::findOrFail($id);
+
+        if ($request->input('result') === 'right') {
+            $card->review_level += 1;
+        } else if ($request->input('result') === 'wrong') {
+            $card->review_level = max(1, $card->review_level - 1); // Ensure it doesn't go below 1
+        }
+
+        $card->last_reviewed_date = now();
+        $card->next_review_date = now()->addDays($this->getInterval($card->review_level));
+
+        $card->save();
+
+        return response()->json($card);
+    }
+
+// Utility function to get the next review interval based on the review level
+    private function getInterval($level)
+    {
+        switch ($level) {
+            case 1:
+                return 1;
+            case 2:
+                return 3;
+            case 3:
+                return 7;
+            case 4:
+                return 14;
+            case 5:
+                return 30;
+            default:
+                return 30 + 15 * ($level - 5); // After level 5, add 15 days for each level
+        }
+    }
 }
