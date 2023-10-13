@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Card extends Model
 {
     use HasFactory;
+
+    protected $guarded = ['id'];
+
+    public function deck()
+    {
+        return $this->belongsTo(Deck::class);
+    }
 }

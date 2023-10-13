@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login'])->name('api.auth.login');
-    Route::post('register', [AuthController::class, 'register'])->name('api.auth.register'); // Added registration route
+    Route::post('register', [AuthController::class, 'register'])->name('api.auth.register');
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -34,8 +34,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::resource('decks', DeckController::class);
 
     Route::prefix('decks/{deck}')->group(function () {
-        Route::resource('cards', CardController::class);
+        Route::get('cards', [CardController::class, 'index']);
+        Route::post('cards', [CardController::class, 'store']);
     });
+
+    Route::resource('cards', CardController::class)->except(['index', 'store']);
 
     Route::post('progress/{card}', [ProgressController::class, 'trackProgress'])->name('progress.track');
     Route::get('progress/{card}', [ProgressController::class, 'getProgress'])->name('progress.get');
