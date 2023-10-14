@@ -56,7 +56,12 @@ class CardController extends Controller
 
     public function getDueCards(Deck $deck)
     {
-        $dueCards = $deck->cards()->where('next_review_date', '<=', now())->get();
+        $dueCards = $deck->cards()
+            ->where(function ($query) {
+                $query->where('next_review_date', '<=', now())
+                    ->orWhereNull('next_review_date');
+            })->get();
+
         return response()->json($dueCards);
     }
 
@@ -74,27 +79,37 @@ class CardController extends Controller
         $card->last_reviewed_date = now();
         $card->next_review_date = now()->addDays($this->getInterval($card->review_level));
 
+        if ($card->review_level >= 8) { // Level 8 means no more reviews
+            $card->is_active = false; // Assuming you have an is_active column to mark cards that shouldn't be reviewed anymore
+        }
+
         $card->save();
 
         return response()->json($card);
     }
+
 
 // Utility function to get the next review interval based on the review level
     private function getInterval($level)
     {
         switch ($level) {
             case 1:
-                return 1;
+                return 1; // 1 day
             case 2:
-                return 3;
+                return 3; // 3 days
             case 3:
-                return 7;
+                return 7; // 7 days
             case 4:
-                return 14;
+                return 14; // 2 weeks
             case 5:
-                return 30;
+                return 30; // 1 month
+            case 6:
+                return 90; // 3 months
+            case 7:
+                return 180; // 6 months
             default:
-                return 30 + 15 * ($level - 5); // After level 5, add 15 days for each level
+                // Level 8 and above (don't review anymore)
+                return 9999; // A large number to simulate "forever"
         }
     }
 }
