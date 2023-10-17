@@ -20,30 +20,78 @@ class DatabaseSeeder extends Seeder
         // Seeding the user
         $user = User::create([
             'first_name' => 'test',
-            'last_name'  => 'test',
-            'email'      => 'test@mail.com',
-            'password'   => Hash::make('P@ssw0rd'),
+            'last_name' => 'test',
+            'email' => 'test@mail.com',
+            'password' => Hash::make('P@ssw0rd'),
         ]);
 
-        // Seeding 5 decks for the user
-        for ($i = 1; $i <= 5; $i++) {
-            $deck = Deck::create([
-                'user_id'     => $user->id,
-                'name'        => 'Deck ' . $i,
-                'description' => 'Description for Deck ' . $i,
-            ]);
+        // Create an array of English words and their corresponding translations
+        $wordPairs = [
+            'Flyers' => 'Folhetos',
+            'fence' => 'cerca',
+            'weren\'t' => 'nao estavam',
+            'held' => 'Feito/mantido',
+            'of the' => 'pela',
+            'box office' => 'renda de bilheteira',
+            'advertisement' => 'anúncio',
+            'striped' => 'listrado',
+            'extension cords' => 'cabos de extensão',
+            'drawer' => 'gaveta',
+            'up ahead.' => 'à Frente.',
+            'Skimming' => 'Leitura rápida',
+            'unfortunately' => 'Infelizmente',
+            'venue' => 'local',
+            'trouser' => 'calça',
+            'to sweep' => 'varrer',
+            'to lean' => 'inclinar',
+            'lid' => 'tampa',
+            'stool' => 'banco',
+            'brick' => 'tijolo',
+            'to sew' => 'costurar',
+            'to scatter' => 'espalhar',
+            'to stack' => 'empilhar',
+            'railing' => 'corrimão',
+            'to mow' => 'cortar',
+            'lawn' => 'grama',
+            'grocery' => 'mercearia',
+            'rafting' => 'andar de barco',
+            'fabric' => 'tecido',
+            'enhance' => 'melhorar',
+            'freight' => 'frete',
+            'publicize' => 'divulgar',
+            'tuition' => 'conta',
+            'compliance' => 'conformidade',
+            'preply' => 'prépli',
+            'half' => 'metade',
+            'real estate agent' => 'corretor de imoveis',
+            'real estate' => 'imobiliaria',
+            'accountant' => 'Contador',
+            'reassure' => 'Tranquilizar',
+            'shifts' => 'turno',
+            'landscaping' => 'Paisagismo',
+            'clerks' => 'funcionário',
+            'to assembly' => 'montar',
+            'leverage' => 'aproveitar',
+        ];
 
-            // Seeding 5 cards for each deck
-            for ($j = 1; $j <= 5; $j++) {
-                Card::create([
-                    'deck_id'           => $deck->id,
-                    'front'             => 'Front side of Card ' . $j . ' in Deck ' . $i,
-                    'back'              => 'Back side of Card ' . $j . ' in Deck ' . $i,
-                    'review_level'      => rand(1, 5), // assuming you might want different review levels. You can adjust this.
-                    'last_reviewed_date'=> now(),
-                    'next_review_date'  => now()->addDays(rand(1, 5)), // just for varied data
-                ]);
-            }
+
+        // Get the deck with deck_id 1
+        $deck = Deck::create([
+            'user_id' => $user->id,
+            'name' => 'Deck 1',
+            'description' => 'English to Portuguese Translation',
+        ]);
+
+        // Seeding cards for deck 1
+        foreach ($wordPairs as $englishWord => $translation) {
+            Card::create([
+                'deck_id' => $deck->id,
+                'front' => $englishWord,
+                'back' => $translation,
+                'review_level' => rand(1, 5),
+                'last_reviewed_date' => now(),
+                'next_review_date' => now()->addDays(rand(1, 5)),
+            ]);
         }
     }
 }
