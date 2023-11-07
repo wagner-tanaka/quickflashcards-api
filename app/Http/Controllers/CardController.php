@@ -8,11 +8,16 @@ use Illuminate\Http\Request;
 
 class CardController extends Controller
 {
+
     public function index(Deck $deck)
     {
-        $cards = $deck->cards()->whereHas('deck', function ($query) {
-            $query->where('user_id', auth()->id());
-        })->get();
+        if ($deck->user_id != auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $cards = $deck->cards()->with('phrases')
+        ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json($cards);
     }
@@ -23,10 +28,22 @@ class CardController extends Controller
             'front' => 'required|string',
             'back' => 'required|string',
             'image_path' => 'nullable|string',
+            'phrases' => 'array',
+            'phrases.*' => 'string'
         ]);
 
         $card = new Card($data);
         $deck->cards()->save($card);
+
+        if (!empty($request->phrases)) {
+            foreach ($request->phrases as $phrase) {
+                if ($phrase !== null && $phrase !== '') {
+                    $card->phrases()->create(['phrase' => $phrase]);
+                }
+            }
+        }
+
+        $card->load('phrases');
 
         return response()->json($card, 201);
     }
@@ -57,6 +74,7 @@ class CardController extends Controller
     public function getDueCards(Deck $deck)
     {
         $dueCards = $deck->cards()
+            ->with('phrases')
             ->where(function ($query) {
                 $query->where('next_review_date', '<=', now())
                     ->orWhereNull('next_review_date');
@@ -65,7 +83,6 @@ class CardController extends Controller
         return response()->json($dueCards);
     }
 
-// Update a card's review data based on user feedback
     public function reviewCard(Request $request, $id)
     {
         $card = Card::findOrFail($id);
