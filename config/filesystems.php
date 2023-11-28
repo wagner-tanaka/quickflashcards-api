@@ -29,6 +29,10 @@ return [
     */
 
     'disks' => [
+        'snapshots' => [
+            'driver' => 'local',
+            'root' => database_path('snapshots'),
+        ],
 
         'local' => [
             'driver' => 'local',
