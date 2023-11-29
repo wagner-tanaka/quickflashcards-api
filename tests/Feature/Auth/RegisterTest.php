@@ -12,25 +12,29 @@ class RegisterTest extends TestCase
 
     public function testUserCanRegister()
     {
-        $response = $this->postJson('/api/auth/register', [
-            'first_name' => 'Johnny',
-            'last_name' => 'Doe',
-            'email' => 'john@example.com',
+        // create user data
+        $userData = User::factory()->make([
             'password' => 'password',
             'password_confirmation' => 'password',
-        ]);
+        ])->toArray();
 
+        // perform the request request
+        $response = $this->postJson('/api/auth/register', $userData);
+
+        // assertions
         $response
             ->assertStatus(200)
             ->assertJson([
                 'token_type' => 'Bearer',
             ]);
 
+        // assert user was created
         $this->assertDatabaseHas('users', [
-            'email' => 'john@example.com',
+            'email' => $userData['email'],
         ]);
 
-        $user = User::where('email', 'john@example.com')->first();
+        // assert user can authenticate
+        $user = User::where('email', $userData['email'])->first();
         $this->assertNotNull($user->tokens->first());
     }
 }
