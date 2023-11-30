@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Auth\UpdatePassword;
+namespace Unit;
 
 use App\Actions\AuthActions\UpdateUserPasswordAction;
 use App\Models\User;
