@@ -40,8 +40,9 @@ class LoginTest extends TestCase
 
     /**
      * @dataProvider userLoginDataProvider
+     * @test
      */
-    public function testUserLogin(string $password, int $expectedStatus)
+    public function user_can_login_with_various_credentials(string $password, int $expectedStatus)
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => $this->user->email,
@@ -51,7 +52,8 @@ class LoginTest extends TestCase
         $response->assertStatus($expectedStatus);
     }
 
-    public function testLoginWithInvalidEmail()
+    /** @test */
+    public function user_cannot_login_with_invalid_email()
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => 'nonexistent@example.com',
@@ -61,7 +63,8 @@ class LoginTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function testLoginWithEmptyCredentials()
+    /** @test */
+    public function user_cannot_login_with_empty_credentials()
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => '',
@@ -73,8 +76,9 @@ class LoginTest extends TestCase
 
     /**
      * @dataProvider malformedEmailProvider
+     * @test
      */
-    public function testLoginWithMalformedEmail(string $malformedEmail)
+    public function user_cannot_login_with_malformed_email(string $malformedEmail)
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => $malformedEmail,

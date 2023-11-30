@@ -26,7 +26,8 @@ class RegisterTest extends TestCase
         ];
     }
 
-    public function testUserCanRegister()
+    /** @test */
+    public function user_can_register_with_valid_credentials()
     {
         $userData = User::factory()->make([
             'password' => 'password',
@@ -39,8 +40,9 @@ class RegisterTest extends TestCase
 
     /**
      * @dataProvider invalidEmailProvider
+     * @test
      */
-    public function testRegistrationWithInvalidEmail($email)
+    public function registration_fails_with_invalid_email($email)
     {
         $userData = User::factory()->make([
             'email' => $email,
@@ -54,8 +56,9 @@ class RegisterTest extends TestCase
 
     /**
      * @dataProvider invalidPasswordProvider
+     * @test
      */
-    public function testRegistrationWithInvalidPassword($password)
+    public function registration_fails_with_invalid_password($password)
     {
         $userData = User::factory()->make([
             'password' => $password,
@@ -66,7 +69,8 @@ class RegisterTest extends TestCase
         $response->assertStatus(422);
     }
 
-    public function testUserIsInDatabaseAfterSuccessfulRegistration()
+    /** @test */
+    public function user_record_is_created_after_successful_registration()
     {
         $userData = User::factory()->make([
             'password' => 'password',
