@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\DeckCreateRequest;
+use App\Http\Requests\Auth\DeckUpdateRequest;
 use App\Models\Deck;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class DeckController extends Controller
 {
@@ -14,12 +15,9 @@ class DeckController extends Controller
         return response()->json($decks);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(DeckCreateRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $deck = auth()->user()->decks()->create($data);
 
@@ -31,12 +29,9 @@ class DeckController extends Controller
         return response()->json($deck);
     }
 
-    public function update(Request $request, Deck $deck)
+    public function update(DeckUpdateRequest $request, Deck $deck)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $deck->update($data);
 
@@ -47,7 +42,6 @@ class DeckController extends Controller
     {
         $deck->delete();
 
-        return response()->json(['message' => 'Deck deleted successfully.'], 200);
+        return response()->json(['message' => 'Deck deleted successfully.']);
     }
-
 }
