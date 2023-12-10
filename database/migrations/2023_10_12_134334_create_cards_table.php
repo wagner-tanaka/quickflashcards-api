@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('deck_id');
             $table->text('front');
             $table->text('back');
+            $table->text('pronunciation')->nullable();
             $table->integer('review_level')->default(1);
             $table->date('last_reviewed_date')->nullable();
             $table->date('next_review_date')->nullable();

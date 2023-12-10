@@ -16,7 +16,7 @@ class CardController extends Controller
         }
 
         $cards = $deck->cards()->with('phrases')
-        ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json($cards);
@@ -27,6 +27,7 @@ class CardController extends Controller
         $data = $request->validate([
             'front' => 'required|string',
             'back' => 'required|string',
+            'pronunciation' => 'nullable|string',
             'image_path' => 'nullable|string',
             'phrases' => 'array',
             'phrases.*' => 'string'
@@ -58,6 +59,7 @@ class CardController extends Controller
         $data = $request->validate([
             'front' => 'required|string',
             'back' => 'required|string',
+            'pronunciation' => 'nullable|string',
             'image_path' => 'nullable|string',
         ]);
 
