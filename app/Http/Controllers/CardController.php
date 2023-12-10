@@ -61,7 +61,18 @@ class CardController extends Controller
             'back' => 'required|string',
             'pronunciation' => 'nullable|string',
             'image_path' => 'nullable|string',
+            'phrases' => 'array',
         ]);
+
+        $phrases = $request->validate([
+            'phrases.*' => 'string',
+        ])['phrases'] ?? [];
+
+        $card->phrases()->delete();
+
+        foreach ($phrases as $phraseText) {
+            $card->phrases()->create(['phrase' => $phraseText]);
+        }
 
         $card->update($data);
         return response()->json($card);
