@@ -103,14 +103,14 @@ class CardController extends Controller
         if ($request->input('result') === 'right') {
             $card->review_level += 1;
         } else if ($request->input('result') === 'wrong') {
-            $card->review_level = max(1, $card->review_level - 1); // Ensure it doesn't go below 1
+            $card->review_level = 0; 
         }
 
         $card->last_reviewed_date = now();
         $card->next_review_date = now()->addDays($this->getInterval($card->review_level));
 
         if ($card->review_level >= 8) { // Level 8 means no more reviews
-            $card->is_active = false; // Assuming you have an is_active column to mark cards that shouldn't be reviewed anymore
+            $card->is_active = false; 
         }
 
         $card->save();
@@ -118,11 +118,11 @@ class CardController extends Controller
         return response()->json($card);
     }
 
-
-// Utility function to get the next review interval based on the review level
     private function getInterval($level)
     {
         switch ($level) {
+            case 0:
+                return 0;
             case 1:
                 return 1; // 1 day
             case 2:
