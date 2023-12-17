@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('card_phrases', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('card_id')->constrained()->onDelete('cascade');
-            $table->text('phrase');
-            $table->timestamps();
+            $table->id()->comment('Primary key of the card phrase');
+            $table->foreignId('card_id')->constrained()->cascadeOnDelete()->comment('Foreign key referencing the card');
+            $table->text('phrase')->comment('Phrase associated with the card');
+
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('Time when the record was created');
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('Time when the record was last updated');
         });
     }
 

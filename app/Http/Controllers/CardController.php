@@ -103,14 +103,14 @@ class CardController extends Controller
         if ($request->input('result') === 'right') {
             $card->review_level += 1;
         } else if ($request->input('result') === 'wrong') {
-            $card->review_level = 0; 
+            $card->review_level = 0;
         }
 
         $card->last_reviewed_date = now();
         $card->next_review_date = now()->addDays($this->getInterval($card->review_level));
 
         if ($card->review_level >= 8) { // Level 8 means no more reviews
-            $card->is_active = false; 
+            $card->is_active = false;
         }
 
         $card->save();

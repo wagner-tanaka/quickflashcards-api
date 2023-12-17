@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,19 +13,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cards', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('deck_id');
-            $table->text('front');
-            $table->text('back');
-            $table->text('pronunciation')->nullable();
-            $table->integer('review_level')->default(1);
-            $table->date('last_reviewed_date')->nullable();
-            $table->date('next_review_date')->nullable();
-            $table->timestamps();
+            $table->id()->comment('Primary key of the card');
+            $table->foreignId('deck_id')->constrained()->cascadeOnDelete()->comment('Foreign key referencing the deck');
+            $table->text('front')->comment('Front side of the card');
+            $table->text('back')->comment('Back side of the card');
+            $table->text('pronunciation')->nullable()->comment('Pronunciation of the card content');
+            $table->integer('review_level')->default(0)->comment('Review level of the card');
+            $table->date('last_reviewed_date')->nullable()->default(now())->comment('Date when the card was last reviewed');
+            $table->date('next_review_date')->nullable()->default(now())->comment('Date for the next review of the card');
 
-            $table->foreign('deck_id')->references('id')->on('decks')->onDelete('cascade');
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('Time when the record was created');
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('Time when the record was last updated');
         });
-
     }
 
     /**

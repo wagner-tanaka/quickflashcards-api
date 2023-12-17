@@ -12,13 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('decks', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('name');
-            $table->text('description')->nullable();
+            $table->id()->comment('Primary key of the deck');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete()->comment('Foreign key referencing the user');
+            $table->string('name', 100)->comment('Name of the deck');
+            $table->text('description')->nullable()->comment('Description of the deck');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
