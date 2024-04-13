@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\DeckCreateRequest;
-use App\Http\Requests\Auth\DeckUpdateRequest;
+use App\Http\Requests\Deck\DeckCreateRequest;
+use App\Http\Requests\Deck\DeckUpdateRequest;
 use App\Models\Deck;
 use Illuminate\Http\JsonResponse;
 
