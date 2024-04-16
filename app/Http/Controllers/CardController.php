@@ -61,8 +61,14 @@ class CardController extends Controller
             ->with('phrases')
             ->where(function ($query) {
                 $query->where('next_review_date', '<=', now())
-                    ->orWhereNull('next_review_date');
-            })->get();
+                    ->orWhereNull('next_review_date');})
+            ->get()
+            ->map(function ($card) {
+                if ($card->image_path) {
+                    $card->image_url = asset('storage/' . $card->image_path);
+                }
+                return $card;
+            });
 
         return response()->json($dueCards);
     }
