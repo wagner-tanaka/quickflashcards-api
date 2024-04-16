@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Cards\CreateCardAction;
+use App\Http\Requests\Cards\CardStoreRequest;
 use App\Models\Card;
 use App\Models\Deck;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class CardController extends Controller
 {
@@ -15,38 +19,19 @@ class CardController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $cards = $deck->cards()->with('phrases')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $cards = $this->getDeckCards($deck);
 
         return response()->json($cards);
     }
 
-    public function store(Request $request, Deck $deck)
+
+    public function store(CardStoreRequest $request, Deck $deck)
     {
-        $data = $request->validate([
-            'front' => 'required|string',
-            'back' => 'required|string',
-            'pronunciation' => 'nullable|string',
-            'image_path' => 'nullable|string',
-            'phrases' => 'array',
-            'phrases.*' => 'string'
-        ]);
+        $createCardAction = new CreateCardAction();
+        $createCardAction->execute($request->validated(), $deck);
+        $cards = $this->getDeckCards($deck);
 
-        $card = new Card($data);
-        $deck->cards()->save($card);
-
-        if (!empty($request->phrases)) {
-            foreach ($request->phrases as $phrase) {
-                if ($phrase !== null && $phrase !== '') {
-                    $card->phrases()->create(['phrase' => $phrase]);
-                }
-            }
-        }
-
-        $card->load('phrases');
-
-        return response()->json($card, 201);
+        return response()->json($cards, ResponseAlias::HTTP_CREATED);
     }
 
     public function show(Card $card)
@@ -141,5 +126,18 @@ class CardController extends Controller
                 // Level 8 and above (don't review anymore)
                 return 9999; // A large number to simulate "forever"
         }
+    }
+
+    public function getDeckCards(Deck $deck): Collection
+    {
+        return $deck->cards()->with('phrases')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($card) {
+                if ($card->image_path) {
+                    $card->image_url = asset('storage/' . $card->image_path);
+                }
+                return $card;
+            });
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Deck;
+namespace App\Http\Requests\Cards;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeckCreateRequest extends FormRequest
+class CardStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,12 @@ class DeckCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'front' => 'required|string',
+            'back' => 'required|string',
+            'pronunciation' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
+            'phrases' => 'nullable|string',
+            'phrases.*' => 'string'
         ];
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('deck_id')->constrained()->cascadeOnDelete()->comment('Foreign key referencing the deck');
             $table->text('front')->comment('Front side of the card');
             $table->text('back')->comment('Back side of the card');
+            $table->string('image_path')->nullable()->comment('Path to the image of the card');
             $table->text('pronunciation')->nullable()->comment('Pronunciation of the card content');
             $table->integer('review_level')->default(0)->comment('Review level of the card');
             $table->date('last_reviewed_date')->nullable()->default(now())->comment('Date when the card was last reviewed');
