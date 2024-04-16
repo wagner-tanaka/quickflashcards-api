@@ -32,13 +32,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::resource('decks', DeckController::class);
+    Route::post('/updateCards/{card}', [CardController::class, 'update'])->name('cards.update');
 
     Route::prefix('decks/{deck}')->group(function () {
         Route::get('cards', [CardController::class, 'index']);
         Route::post('cards', [CardController::class, 'store']);
     });
 
-    Route::resource('cards', CardController::class)->except(['index', 'store']);
+    Route::resource('cards', CardController::class);
     Route::get('/decks/{deck}/cards/due', [CardController::class, 'getDueCards']);
 
     Route::post('/cards/{id}/review', [CardController::class, 'reviewCard']);

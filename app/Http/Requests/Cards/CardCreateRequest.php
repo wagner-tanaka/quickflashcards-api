@@ -5,7 +5,7 @@ namespace App\Http\Requests\Cards;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CardStoreRequest extends FormRequest
+class CardCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

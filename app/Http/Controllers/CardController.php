@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Cards\CreateCardAction;
-use App\Http\Requests\Cards\CardStoreRequest;
+use App\Actions\Cards\UpdateCardAction;
+use App\Http\Requests\Cards\CardCreateRequest;
+use App\Http\Requests\Cards\CardUpdateRequest;
 use App\Models\Card;
 use App\Models\Deck;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
@@ -13,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class CardController extends Controller
 {
 
-    public function index(Deck $deck)
+    public function index(Deck $deck): JsonResponse
     {
         if ($deck->user_id != auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -25,9 +28,8 @@ class CardController extends Controller
     }
 
 
-    public function store(CardStoreRequest $request, Deck $deck)
+    public function store(CardCreateRequest $request, Deck $deck, CreateCardAction $createCardAction): JsonResponse
     {
-        $createCardAction = new CreateCardAction();
         $createCardAction->execute($request->validated(), $deck);
         $cards = $this->getDeckCards($deck);
 
@@ -39,28 +41,12 @@ class CardController extends Controller
         return response()->json($card);
     }
 
-    public function update(Request $request, Card $card)
+    public function update(CardUpdateRequest $request, Card $card, UpdateCardAction $updateCardAction): JsonResponse
     {
-        $data = $request->validate([
-            'front' => 'required|string',
-            'back' => 'required|string',
-            'pronunciation' => 'nullable|string',
-            'image_path' => 'nullable|string',
-            'phrases' => 'array',
-        ]);
+        $updateCardAction->execute($request->validated(), $card);
+        $cards = $this->getDeckCards($card->deck);
 
-        $phrases = $request->validate([
-            'phrases.*' => 'string',
-        ])['phrases'] ?? [];
-
-        $card->phrases()->delete();
-
-        foreach ($phrases as $phraseText) {
-            $card->phrases()->create(['phrase' => $phraseText]);
-        }
-
-        $card->update($data);
-        return response()->json($card);
+        return response()->json($cards);
     }
 
     public function destroy(Card $card)
