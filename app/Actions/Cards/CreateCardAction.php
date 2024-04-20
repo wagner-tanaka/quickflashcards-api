@@ -29,7 +29,7 @@ class CreateCardAction
     private function saveImageIfNeeded(array $data, Card $card): void
     {
         if (!empty($data['image']) && $data['image'] instanceof UploadedFile) {
-            $path = $data['image']->store('cards', 'public');
+            $path = $data['image']->store('cards');
             $card->image_path = $path;
         }
     }

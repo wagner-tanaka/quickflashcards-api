@@ -47,4 +47,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('progress/{card}', [ProgressController::class, 'trackProgress'])->name('progress.track');
     Route::get('progress/{card}', [ProgressController::class, 'getProgress'])->name('progress.get');
 
+    // get card image
+    Route::get('/cards/{card}/image', [CardController::class, 'getImage'])->name('cards.get-image');
 });

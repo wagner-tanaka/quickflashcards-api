@@ -11,6 +11,7 @@ use App\Models\Deck;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class CardController extends Controller
@@ -127,9 +128,27 @@ class CardController extends Controller
             ->get()
             ->map(function ($card) {
                 if ($card->image_path) {
-                    $card->image_url = asset('storage/' . $card->image_path);
+                    $image_url = route('cards.get-image', ['card' => $card->id]);
+                    $card->image_url = $image_url;
                 }
                 return $card;
             });
     }
+
+    public function getImage($cardId): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $card = Card::findOrFail($cardId);
+        $path = storage_path('app/' . $card->image_path);
+
+        if (!File::exists($path)) {
+            abort(404, 'Image not found.');
+        }
+
+        $type = File::mimeType($path);
+
+        return response()->file($path, [
+            'Content-Type' => $type
+        ]);
+    }
+
 }
