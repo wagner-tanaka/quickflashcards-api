@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeckController;
+use App\Http\Controllers\GPTBotController;
 use App\Http\Controllers\ProgressController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,4 +50,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // get card image
     Route::get('/cards/{card}/image', [CardController::class, 'getImage'])->name('cards.get-image');
+
+    // gpt request
+    Route::post('/fetch-translation', [GPTBotController::class, 'getTranslation'])->name('gptbot.get-translation');
 });
