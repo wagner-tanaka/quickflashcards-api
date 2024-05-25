@@ -24,7 +24,7 @@ class GenerateImageAction
     {
         $AIBotPath = config('services.ai_bot.path');
         return Http::post($AIBotPath . '/generate-image', [
-            'word' => $word,
+            'image_reference_word' => $word,
         ]);
     }
 
