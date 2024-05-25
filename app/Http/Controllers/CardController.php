@@ -65,7 +65,9 @@ class CardController extends Controller
                     ->orWhereNull('next_review_date');})
             ->get()
             ->map(function ($card) {
-                $card->image_url = route('cards.get-image', ['card' => $card->id]);
+                if ($card->image_path) {
+                    $card->image_url = route('cards.get-image', ['card' => $card->id]);
+                }
                 return $card;
             });
 
