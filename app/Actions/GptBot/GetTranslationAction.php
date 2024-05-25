@@ -23,7 +23,8 @@ class GetTranslationAction
 
     private function sendTranslationRequest(string $word, string $model): Response
     {
-        return Http::post('http://192.168.0.14:8000/translate', [
+        $translateAiPath = config('services.translate_ai.path');
+        return Http::post($translateAiPath . '/translate', [
             'word' => $word,
             'model' => $model,
         ]);
