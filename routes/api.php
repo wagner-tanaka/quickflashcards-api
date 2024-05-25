@@ -53,4 +53,5 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // gpt request
     Route::post('/fetch-translation', [GPTBotController::class, 'getTranslation'])->name('gptbot.get-translation');
+    Route::post('/generate-image', [GPTBotController::class, 'generateImage'])->name('gptbot.generate-image');
 });

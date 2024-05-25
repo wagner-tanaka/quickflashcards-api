@@ -6,28 +6,25 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
-class GetTranslationAction
+class GenerateImageAction
 {
     public function execute(array $validatedData): JsonResponse
     {
-        $word = $validatedData['wordToTranslate'];
-        $model = $validatedData['gptModel'];
+        $imageReferenceWord = $validatedData['imageReferenceWord'];
 
         try {
-            $response = $this->sendTranslationRequest($word, $model);
+            $response = $this->sendImageGenerateRequest($imageReferenceWord);
             return $this->handleResponse($response);
         } catch (\Exception $e) {
             return $this->handleException($e);
         }
     }
 
-    private function sendTranslationRequest(string $word, string $model): Response
+    private function sendImageGenerateRequest(string $word): Response
     {
         $AIBotPath = config('services.ai_bot.path');
-
-        return Http::post($AIBotPath . '/translate', [
+        return Http::post($AIBotPath . '/generate-image', [
             'word' => $word,
-            'model' => $model,
         ]);
     }
 

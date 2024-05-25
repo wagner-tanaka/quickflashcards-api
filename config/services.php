@@ -31,8 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'translate_ai' => [
-        'path' => env('AI_TRANSLATION_SERVICE_URL'),
+    'ai_bot' => [
+        'path' => env('AI_BOT_SERVICE_URL'),
     ],
 
 ];

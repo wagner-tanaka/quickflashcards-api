@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Cards;
+namespace App\Http\Requests\GptBot;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CardCreateRequest extends FormRequest
+class GenerateImageRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,7 @@ class CardCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'front' => 'required|string|max:255',
-            'back' => 'required|string',
-            'pronunciation' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'phrases' => 'nullable|string',
-            'phrases.*' => 'string'
+            'imageReferenceWord' => 'required|string|max:255',
         ];
     }
 }
