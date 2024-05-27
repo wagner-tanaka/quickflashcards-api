@@ -9,6 +9,7 @@ use App\Actions\AuthActions\UpdateUserPasswordAction;
 use App\Http\Requests\Auth\LoginAuthRequest;
 use App\Http\Requests\Auth\RegisterAuthRequest;
 use App\Http\Requests\Auth\UpdateAuthRequest;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -25,6 +26,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
     public function login(LoginAuthRequest $request, LoginUserAction $action): JsonResponse
     {
         $token = $action->handle($request->email, $request->password);

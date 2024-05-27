@@ -34,14 +34,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('decks/{deck}')->group(function () {
         Route::get('cards', [CardController::class, 'index']);
         Route::post('cards', [CardController::class, 'store']);
-        Route::get('cards/due', [CardController::class, 'getDueCards']);
+        Route::get('cards/to-study', [CardController::class, 'getCardsToStudy']);
     });
 
     // card
     Route::resource('cards', CardController::class);
     Route::prefix('cards')->group(function () {
-        Route::post('{id}/review', [CardController::class, 'reviewCard']);
-        Route::get('{card}/image', [CardController::class, 'getImage'])->name('cards.get-image');
+        Route::post('{card}/review', [CardController::class, 'reviewCard']);
+        Route::get('{card}/image', [CardController::class, 'getCardImage'])->name('cards.get-image');
     });
 
     // gpt requests

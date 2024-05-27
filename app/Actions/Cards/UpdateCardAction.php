@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UpdateCardAction
 {
-    public function execute(array $data, Card $card): void
+    public function handle(array $data, Card $card): void
     {
         $this->handleImageDeletionAndUpdate($data, $card);
         $this->updatePhrases($data['phrases'], $card);

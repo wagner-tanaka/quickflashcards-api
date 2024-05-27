@@ -8,7 +8,7 @@ use Illuminate\Http\UploadedFile;
 
 class CreateCardAction
 {
-    public function execute(array $validatedData, Deck $deck): void
+    public function handle(array $validatedData, Deck $deck): void
     {
         $card = $this->createCard($validatedData);
         $this->saveImageIfNeeded($validatedData, $card);
