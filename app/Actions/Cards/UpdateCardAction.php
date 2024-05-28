@@ -3,15 +3,16 @@
 namespace App\Actions\Cards;
 
 use App\Models\Card;
+use App\Models\Deck;
 use Illuminate\Support\Facades\Storage;
 
 class UpdateCardAction
 {
-    public function handle(array $data, Card $card): void
+    public function handle(array $data, Card $deckCard): void
     {
-        $this->handleImageDeletionAndUpdate($data, $card);
-        $this->updatePhrases($data['phrases'], $card);
-        $this->updateCardFields($data, $card);
+        $this->handleImageDeletionAndUpdate($data, $deckCard);
+        $this->updatePhrases($data['phrases'], $deckCard);
+        $this->updateCardFields($data, $deckCard);
     }
 
     protected function handleImageDeletionAndUpdate(array $data, Card $card): void

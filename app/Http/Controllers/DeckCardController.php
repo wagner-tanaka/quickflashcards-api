@@ -17,7 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
-class CardController extends Controller
+class DeckCardController extends Controller
 {
 
     public function index(Deck $deck, GetDeckCardsAction $getDeckCardsAction): JsonResponse
@@ -40,30 +40,29 @@ class CardController extends Controller
         return response()->json($cards, ResponseAlias::HTTP_CREATED);
     }
 
-    public function show(Card $card)
+    public function update(CardUpdateRequest $request, Deck $deck, Card $card, UpdateCardAction $updateCardAction, GetDeckCardsAction $getDeckCardsAction): JsonResponse
     {
-        return response()->json($card);
-    }
+        $deckCard = $deck->cards()->findOrFail($card->id);
 
-    public function update(CardUpdateRequest $request, Card $card, UpdateCardAction $updateCardAction, GetDeckCardsAction $getDeckCardsAction): JsonResponse
-    {
-        $updateCardAction->handle($request->validated(), $card);
+        $updateCardAction->handle($request->validated(), $deckCard);
         $cards = $getDeckCardsAction->handle($card->deck);
 
         return response()->json($cards);
     }
 
-    public function destroy(Card $card): JsonResponse
+    public function destroy(Deck $deck, Card $card): JsonResponse
     {
-        $card->delete();
+        $deckCard = $deck->cards()->findOrFail($card->id);
+        $deckCard->delete();
         return response()->json(['message' => 'Card deleted successfully'], 200);
     }
 
-    public function reviewCard(CardReviewRequest $request, Card $card, ReviewCardAction $reviewCardAction): JsonResponse
+    public function reviewCard(CardReviewRequest $request, Deck $deck, Card $card, ReviewCardAction $reviewCardAction): JsonResponse
     {
-        $card = $reviewCardAction->handle($request->validated(), $card);
+        $deckCard = $deck->cards()->findOrFail($card->id);
+        $cardReviewed = $reviewCardAction->handle($request->validated(), $deckCard);
 
-        return response()->json($card);
+        return response()->json($cardReviewed);
     }
 
     public function getCardsToStudy(Deck $deck, GetCardsToStudyAction $action): JsonResponse

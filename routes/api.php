@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CardController;
+use App\Http\Controllers\DeckCardController;
 use App\Http\Controllers\DeckController;
 use App\Http\Controllers\GPTBotController;
 use Illuminate\Support\Facades\Route;
@@ -31,17 +31,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // deck
     Route::resource('decks', DeckController::class);
+
+
+    // deck cards
     Route::prefix('decks/{deck}')->group(function () {
-        Route::get('cards', [CardController::class, 'index']);
-        Route::post('cards', [CardController::class, 'store']);
-        Route::get('cards/to-study', [CardController::class, 'getCardsToStudy']);
+        Route::get('cards/to-study', [DeckCardController::class, 'getCardsToStudy']);
+        Route::resource('cards', DeckCardController::class);
+        Route::post('cards/{card}/review', [DeckCardController::class, 'reviewCard']);
     });
 
-    // card
-    Route::resource('cards', CardController::class);
+    // cards
     Route::prefix('cards')->group(function () {
-        Route::post('{card}/review', [CardController::class, 'reviewCard']);
-        Route::get('{card}/image', [CardController::class, 'getCardImage'])->name('cards.get-image');
+        Route::get('{card}/image', [DeckCardController::class, 'getCardImage'])->name('cards.get-image');
     });
 
     // gpt requests
