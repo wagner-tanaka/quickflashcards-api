@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class GenerateImageAction
 {
-    public function execute(array $validatedData): JsonResponse
+    public function handle(array $validatedData): JsonResponse
     {
         $imageReferenceWord = $validatedData['imageReferenceWord'];
 

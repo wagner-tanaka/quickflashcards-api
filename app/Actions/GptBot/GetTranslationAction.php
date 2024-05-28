@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class GetTranslationAction
 {
-    public function execute(array $validatedData): JsonResponse
+    public function handle(array $validatedData): JsonResponse
     {
         $word = $validatedData['wordToTranslate'];
         $model = $validatedData['gptModel'];

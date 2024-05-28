@@ -12,7 +12,7 @@ class GPTBotController extends Controller
 {
     public function getTranslation(GetTranslationRequest $request, GetTranslationAction $action): JsonResponse
     {
-        return $action->execute($request->validated());
+        return $action->handle($request->validated());
     }
 
     public function generateImage(GenerateImageRequest $request, GenerateImageAction $action): JsonResponse

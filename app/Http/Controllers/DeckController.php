@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 
 class DeckController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
         $decks = auth()->user()->decks;
         return response()->json($decks);
@@ -24,12 +24,12 @@ class DeckController extends Controller
         return response()->json($deck, 201);
     }
 
-    public function show(Deck $deck)
+    public function show(Deck $deck): JsonResponse
     {
         return response()->json($deck);
     }
 
-    public function update(DeckUpdateRequest $request, Deck $deck)
+    public function update(DeckUpdateRequest $request, Deck $deck): JsonResponse
     {
         $data = $request->validated();
 
