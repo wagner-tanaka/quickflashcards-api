@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('PR Validation') {
             steps {
-                echo 'Pull Request validado com sucesso 222224444422!'
+                echo 'Pull Request validado com sucesso!'
             }
         }
     }
