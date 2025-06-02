@@ -9,7 +9,7 @@ pipeline {
         }
         stage('PR Validation') {
             steps {
-                echo 'Deu baom!'
+                echo 'Deu bom!'
             }
         }
     }
