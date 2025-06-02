@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('PR Validation') {
             steps {
-                echo 'Deu bom!!!!!!!'
+                echo 'Deu bom!!!!!!!!'
             }
         }
     }
