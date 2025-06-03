@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Mostrar linhas adicionadas no PR') {
+        stage('Verificar por palavra proibida') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -11,19 +11,35 @@ pipeline {
                         passwordVariable: 'GIT_TOKEN'
                     )
                 ]) {
-                    sh '''
-                        git config --global credential.helper store
-                        echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
+                    script {
+                        sh '''
+                            git config --global credential.helper store
+                            echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
-                        git fetch origin main:main
-                        git diff main...HEAD > changes.diff
+                            git fetch origin main:main
+                            git diff main...HEAD > changes.diff
 
-                        echo "Linhas adicionadas no PR com 'foobarbaz':"
-                        awk '
-                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
-                        /^\\+.*foobarbaz/ { print current_file ":" $0 }
-                        ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
-                    '''
+                            awk '
+                                /^\+\+\+ b\\// { current_file = substr($0, 7) }
+                                /^\+.*foobarbaz/ { print current_file ":" $0 }
+                            ' changes.diff > resultado.txt
+                        '''
+
+                        def resultado = readFile('resultado.txt').trim()
+
+                        if (resultado) {
+                            // Mostra em vermelho no console
+                            echo "\u001B[31m❌ Palavra proibida 'foobarbaz' encontrada nas seguintes linhas:\n${resultado}\u001B[0m"
+
+                            // Muda o nome do build visivelmente
+                            currentBuild.displayName = "#${env.BUILD_NUMBER} ❌ Palavra proibida"
+
+                            // Fala explicitamente que deve parar o pipeline
+                            error("Palavra proibida encontrada no PR. Veja detalhes acima.")
+                        } else {
+                            echo "✅ Nenhuma palavra proibida encontrada."
+                        }
+                    }
                 }
             }
         }
