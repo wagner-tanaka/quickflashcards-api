@@ -2,9 +2,29 @@ pipeline {
     agent any
 
     stages {
-        stage('PR Validation') {
+        stage('Mostrar linhas adicionadas no PR') {
             steps {
-                echo 'Deu bom!!!!!'
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'a7875a37-e804-4ab6-82ff-c36b2402640b',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        git config --global credential.helper store
+                        echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
+
+                        git fetch origin main:main
+                        git diff main...HEAD > changes.diff
+
+                        echo "Linhas adicionadas no PR com 'foobarbaz':"
+                        awk '
+                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
+                        /^\\+.*foobarbaz/ { print current_file ":" $0 }
+                        ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
+                    '''
+                }
             }
         }
     }
