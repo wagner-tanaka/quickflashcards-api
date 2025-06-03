@@ -26,7 +26,7 @@ pipeline {
                                 match($0, /\\+([0-9]+)/, m)
                                 linha=m[1]-1
                             }
-                            /^\+/ && !/^\\+\\+\\+/ {
+                            /^\\+/ && !/^\\+\\+\\+/ {
                                 linha++
                                 if ($0 ~ /foobarbaz/) {
                                     printf("Arquivo: %s | Linha: %d | Conteúdo: %s\\n", arquivo, linha, substr($0,2))
