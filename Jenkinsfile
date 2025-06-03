@@ -20,32 +20,25 @@ pipeline {
 
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
 
-                        # Process diff to show filename:line_number:content
-                        current_file=""
-                        line_num=0
+                        # Create a script to process the diff
+                        cat > process_diff.awk << 'EOF'
+/^\\+\\+\\+ b\\// {
+    current_file = substr($0, 7)
+    line_num = 0
+}
+/^@@.*\\+/ {
+    match($0, /\\+([0-9]+)/, arr)
+    if (arr[1]) line_num = arr[1] - 1
+}
+/^\\+/ {
+    line_num++
+    if ($0 ~ /foobarbaz/ && $0 !~ /echo.*foobarbaz/ && $0 !~ /grep.*foobarbaz/ && $0 !~ /awk.*foobarbaz/ && $0 !~ /cat.*foobarbaz/) {
+        print current_file ":" line_num ":" substr($0, 2)
+    }
+}
+EOF
 
-                        while IFS= read -r line; do
-                            if [[ "$line" =~ ^\+\+\+\ b/ ]]; then
-                                current_file="${line#'+++ b/'}"
-                                line_num=0
-                            elif [[ "$line" =~ ^@@.*\+ ]]; then
-                                # Extract starting line number
-                                line_num=$(echo "$line" | grep -o '+[0-9]*' | head -1 | cut -c2-)
-                                line_num=$((line_num - 1))
-                            elif [[ "$line" =~ ^\+ ]]; then
-                                line_num=$((line_num + 1))
-                                # Check if line contains foobarbaz but exclude Jenkins script lines
-                                if [[ "$line" == *"foobarbaz"* ]] && [[ "$line" != *"echo"*"foobarbaz"* ]] && [[ "$line" != *"grep"*"foobarbaz"* ]] && [[ "$line" != *"IFS"* ]]; then
-                                    content="${line#+}"
-                                    echo "$current_file:$line_num:$content"
-                                fi
-                            fi
-                        done < changes.diff
-
-                        # Check if we found any matches
-                        if ! grep -q '^+.*foobarbaz' changes.diff; then
-                            echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
-                        fi
+                        awk -f process_diff.awk changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                     '''
                 }
             }
