@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Check for forbidden word in additions') {
+        stage('Mostrar linhas modificadas no PR') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -18,7 +18,7 @@ pipeline {
                         git fetch origin main:main
                         git diff --unified=0 main...HEAD > changes.diff
 
-                        echo "Buscando linhas com 'foobarbaz' adicionadas no PR..."
+                        echo "Linhas adicionadas ou modificadas no PR:"
 
                         awk '
                             /^diff --git/ { arquivo=$3; sub("b/", "", arquivo) }
@@ -28,11 +28,9 @@ pipeline {
                             }
                             /^\\+/ && !/^\\+\\+\\+/ {
                                 linha++
-                                if ($0 ~ /foobarbaz/) {
-                                    printf("Arquivo: %s | Linha: %d | Conteúdo: %s\\n", arquivo, linha, substr($0,2))
-                                }
+                                printf("Arquivo: %s | Linha: %d | Conteúdo: %s\\n", arquivo, linha, substr($0,2))
                             }
-                        ' changes.diff || echo "Nenhuma ocorrência encontrada."
+                        ' changes.diff || echo "Nenhuma linha modificada encontrada."
                     '''
                 }
             }
