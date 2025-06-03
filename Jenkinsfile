@@ -17,21 +17,20 @@ pipeline {
 
                         git fetch origin main:main
 
-                        echo "Linhas adicionadas no PR com nome de arquivo e número da linha:"
+                        echo "Linhas adicionadas no PR:"
 
                         git diff --unified=0 main...HEAD | awk '
                             /^diff --git/ {
-                                arquivo=$3
-                                sub("b/", "", arquivo)
+                                split($3, path, "b/")
+                                file = path[2]
                             }
                             /^@@/ {
-                                match($0, /\\+([0-9]+)/, m)
-                                linha = m[1] ? m[1] - 1 : 0
+                                match($0, /\+([0-9]+)/, m)
+                                line = m[1]
                             }
-                            /^\\+/ && !/^\\+\\+\\+/ {
-                                linha++
-                                conteudo = substr($0, 2)
-                                printf("Arquivo: %s | Linha: %d | Conteúdo: %s\\n", arquivo, linha, conteudo)
+                            /^\+/ && !/^\+\+\+/ {
+                                printf("Arquivo: %s | Linha: %d | %s\n", file, line, substr($0, 2))
+                                line++
                             }
                         '
                     '''
