@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     stages {
         stage('Mostrar linhas adicionadas no PR') {
             steps {
@@ -13,13 +14,14 @@ pipeline {
                     sh '''
                         git config --global credential.helper store
                         echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
+
                         git fetch origin main:main
                         git diff main...HEAD > changes.diff
+
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
                         awk '
-                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7); line_num = 0 }
-                        /^@@.*\\+/ { match($0, /\\+([0-9]+)/, arr); if (arr[1]) line_num = arr[1] - 1 }
-                        /^\\+/ { line_num++; if ($0 ~ /foobarbaz/) print current_file ":" line_num ":" $0 }
+                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
+                        /^\\+.*foobarbaz/ { print current_file ":" $0 }
                         ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                     '''
                 }
