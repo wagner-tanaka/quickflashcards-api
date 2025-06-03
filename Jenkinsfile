@@ -16,23 +16,10 @@ pipeline {
                         echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
                         git fetch origin main:main
+                        git diff main...HEAD > changes.diff
 
-                        echo "Linhas adicionadas no PR:"
-
-                        git diff --unified=0 main...HEAD | awk '
-                            /^diff --git/ {
-                                split($3, path, "b/")
-                                file = path[2]
-                            }
-                            /^@@/ {
-                                match($0, /\+([0-9]+)/, m)
-                                line = m[1]
-                            }
-                            /^\+/ && !/^\+\+\+/ {
-                                printf("Arquivo: %s | Linha: %d | %s\n", file, line, substr($0, 2))
-                                line++
-                            }
-                        '
+                        echo "Linhas adicionadas no PR com 'foobarbaz':"
+                        grep '^+.*foobarbaz' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                     '''
                 }
             }
