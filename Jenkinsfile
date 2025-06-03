@@ -20,24 +20,8 @@ pipeline {
 
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
                         awk '
-                          # Cada vez que o diff mostra o cabeçalho "diff --git a/xxx b/xxx", pega
-                          # o nome do arquivo (parte depois de "a/").
-                          /^diff --git a\\/.+ b\\// {
-                              split($0, parts, " ");
-                              # parts[2] = "a/path/to/file"
-                              sub("^a/", "", parts[2]);
-                              filename = parts[2];
-                          }
-                          # Alternativamente, você pode usar o "+++ b/..." em vez de "diff --git"
-                          #/^\\+\\+\\+ b\\// {
-                          #    sub("^\\+\\+\\+ b/", "", $0);
-                          #    filename = $0;
-                          #}
-                          # Para cada linha adicionada que contém "foobarbaz", imprime "arquivo: linha"
-                          /^\+.*foobarbaz/ {
-                              # substr($0,2) remove o caráter '+' do diff para só mostrar o código
-                              print filename ":" substr($0, 2)
-                          }
+                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
+                        /^\\+.*foobarbaz/ { print current_file ":" $0 }
                         ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                     '''
                 }

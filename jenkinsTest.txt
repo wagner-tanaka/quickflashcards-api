@@ -1,6 +1,6 @@
 foobarbaz
-aaaa
+3
 foobarbaz2
-bbbb
+2
 foobarbaz3345
-ccccdd
+1
