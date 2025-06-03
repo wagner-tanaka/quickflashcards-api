@@ -20,7 +20,7 @@ pipeline {
                             git diff main...HEAD > changes.diff
 
                             awk '
-                                /^\+\+\+ b\\// { current_file = substr($0, 7) }
+                                /^\+\+\+ b\// { current_file = substr($0, 7) }
                                 /^\+.*foobarbaz/ { print current_file ":" $0 }
                             ' changes.diff > resultado.txt
                         '''
@@ -28,13 +28,8 @@ pipeline {
                         def resultado = readFile('resultado.txt').trim()
 
                         if (resultado) {
-                            // Mostra em vermelho no console
                             echo "\u001B[31m❌ Palavra proibida 'foobarbaz' encontrada nas seguintes linhas:\n${resultado}\u001B[0m"
-
-                            // Muda o nome do build visivelmente
                             currentBuild.displayName = "#${env.BUILD_NUMBER} ❌ Palavra proibida"
-
-                            // Fala explicitamente que deve parar o pipeline
                             error("Palavra proibida encontrada no PR. Veja detalhes acima.")
                         } else {
                             echo "✅ Nenhuma palavra proibida encontrada."
