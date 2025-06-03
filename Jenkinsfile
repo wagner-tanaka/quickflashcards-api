@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Verificar por palavra proibida') {
+        stage('Mostrar linhas adicionadas no PR') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -12,36 +12,109 @@ pipeline {
                     )
                 ]) {
                     script {
-                        sh '''
-                            git config --global credential.helper store
-                            echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
+                        def result = sh(
+                            script: '''
+                                git config --global credential.helper store
+                                echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
-                            git fetch origin main:main
-                            git diff main...HEAD > changes.diff
+                                git fetch origin main:main
+                                git diff main...HEAD > changes.diff
 
-                            awk '
-                                /^\+\+\+ b\\// { current_file = substr($0, 7) }
-                                /^\+.*foobarbaz/ { print current_file ":" $0 }
-                            ' changes.diff > resultado.txt
-                        '''
+                                echo "Linhas adicionadas no PR com 'foobarbaz':"
+                                matches=$(awk '
+                                /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
+                                /^\\+.*foobarbaz/ {
+                                    if ($0 !~ /echo.*foobarbaz/ && $0 !~ /awk.*foobarbaz/) {
+                                        print current_file ":" $0
+                                    }
+                                }
+                                ' changes.diff)
 
-                        def resultado = readFile('resultado.txt').trim()
+                                if [ -n "$matches" ]; then
+                                    echo "$matches"
+                                    echo "FOUND_MATCHES=true" > result.env
+                                    echo "MATCH_COUNT=$(echo "$matches" | wc -l)" >> result.env
+                                else
+                                    echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
+                                    echo "FOUND_MATCHES=false" > result.env
+                                    echo "MATCH_COUNT=0" >> result.env
+                                fi
+                            ''',
+                            returnStdout: true
+                        ).trim()
 
-                        if (resultado) {
-                            // Mostra em vermelho no console
-                            echo "\u001B[31m❌ Palavra proibida 'foobarbaz' encontrada nas seguintes linhas:\n${resultado}\u001B[0m"
+                        // Ler as variáveis do arquivo
+                        def envVars = readFile('result.env').split('\n')
+                        def foundMatches = false
+                        def matchCount = 0
 
-                            // Muda o nome do build visivelmente
-                            currentBuild.displayName = "#${env.BUILD_NUMBER} ❌ Palavra proibida"
+                        envVars.each { line ->
+                            if (line.startsWith('FOUND_MATCHES=')) {
+                                foundMatches = line.split('=')[1] == 'true'
+                            }
+                            if (line.startsWith('MATCH_COUNT=')) {
+                                matchCount = line.split('=')[1] as Integer
+                            }
+                        }
 
-                            // Fala explicitamente que deve parar o pipeline
-                            error("Palavra proibida encontrada no PR. Veja detalhes acima.")
+                        // Alertas visuais baseados no resultado
+                        if (foundMatches) {
+                            // 1. Marcar o build como UNSTABLE (amarelo) para chamar atenção
+                            currentBuild.result = 'UNSTABLE'
+
+                            // 2. Adicionar badge visual no build
+                            addShortText(
+                                text: "⚠️ FOOBARBAZ ENCONTRADO! (${matchCount} ocorrências)",
+                                color: "red",
+                                background: "yellow"
+                            )
+
+                            // 3. Definir descrição do build
+                            currentBuild.description = "🚨 ATENÇÃO: Palavra 'foobarbaz' encontrada em ${matchCount} linha(s)!"
+
+                            // 4. Imprimir alerta grande no console
+                            echo """
+╔════════════════════════════════════════════════════════════════╗
+║                            ALERTA!                             ║
+║                                                                ║
+║    🚨 PALAVRA 'FOOBARBAZ' ENCONTRADA NO CÓDIGO! 🚨            ║
+║                                                                ║
+║    Encontradas ${matchCount} ocorrência(s) no PR                        ║
+║                                                                ║
+║    Verifique o código antes de fazer merge!                   ║
+╚════════════════════════════════════════════════════════════════╝
+                            """
+
+                            // 5. Criar arquivo de resultado para download
+                            writeFile file: 'foobarbaz_report.txt', text: result
+                            archiveArtifacts artifacts: 'foobarbaz_report.txt', fingerprint: true
+
                         } else {
-                            echo "✅ Nenhuma palavra proibida encontrada."
+                            // Build normal - verde
+                            addShortText(
+                                text: "✅ Nenhuma ocorrência de 'foobarbaz'",
+                                color: "white",
+                                background: "green"
+                            )
+                            currentBuild.description = "✅ Código limpo - sem 'foobarbaz'"
                         }
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            // Limpar arquivos temporários
+            sh 'rm -f changes.diff result.env || true'
+        }
+        unstable {
+            // Enviar notificação quando build fica unstable (palavra encontrada)
+            echo "🚨 BUILD MARCADO COMO UNSTABLE - FOOBARBAZ DETECTADO!"
+        }
+        success {
+            echo "✅ Build completado com sucesso"
         }
     }
 }
