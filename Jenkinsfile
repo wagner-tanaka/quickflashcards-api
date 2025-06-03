@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('PR Validation') {
             steps {
-                echo 'Testing PR validation...'
+                echo 'Testing PR validation...2'
             }
         }
     }
