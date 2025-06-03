@@ -15,10 +15,7 @@ pipeline {
                         git config --global credential.helper store
                         echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
-                        # Buscar o branch main remoto e criar como branch local
                         git fetch origin main:main
-
-                        # Verificar diferença com o main
                         git diff main...HEAD > changes.diff
 
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
