@@ -19,7 +19,10 @@ pipeline {
                         git diff main...HEAD > changes.diff
 
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
-                        grep '^+.*foobarbaz' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
+                        awk '
+                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
+                        /^\\+.*foobarbaz/ { print current_file ":" $0 }
+                        ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                     '''
                 }
             }
