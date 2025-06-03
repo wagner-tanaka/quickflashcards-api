@@ -32,7 +32,7 @@ pipeline {
                                 lineNum++
                                 def content = line.substring(1)
                                 if (content.contains(forbiddenWord)) {
-                                    echo "❌ Palavra proibida '${forbiddenWord}' em ${currentFile}, linha ${lineNum}: ${content.trim()}"
+                                    echo "❌ Palavra proibidas '${forbiddenWord}' em ${currentFile}, linha ${lineNum}: ${content.trim()}"
                                 }
                             } else if (!line.startsWith('-')) {
                                 lineNum++
