@@ -16,20 +16,34 @@ pipeline {
                         echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
                         git fetch origin main:main
-                        # Generate the diff and store it in a file
                         git diff main...HEAD > changes.diff
 
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
-                        # Use awk to find filenames and matching lines
-                        awk '\
-                          /^\+\+\+ b\// { current_file=substr($2, 3) } \
-                          /^\+.*foobarbaz/ { if (current_file) print current_file ": " $0 } \
-                        ' changes.diff > found_lines.txt
 
-                        # Check if any matching lines were found
-                        if [ -s found_lines.txt ]; then
-                            cat found_lines.txt
-                        else
+                        # Process diff to show filename:line_number:content
+                        current_file=""
+                        line_num=0
+
+                        while IFS= read -r line; do
+                            if [[ "$line" =~ ^\+\+\+\ b/ ]]; then
+                                current_file="${line#'+++ b/'}"
+                                line_num=0
+                            elif [[ "$line" =~ ^@@.*\+ ]]; then
+                                # Extract starting line number
+                                line_num=$(echo "$line" | grep -o '+[0-9]*' | head -1 | cut -c2-)
+                                line_num=$((line_num - 1))
+                            elif [[ "$line" =~ ^\+ ]]; then
+                                line_num=$((line_num + 1))
+                                # Check if line contains foobarbaz but exclude Jenkins script lines
+                                if [[ "$line" == *"foobarbaz"* ]] && [[ "$line" != *"echo"*"foobarbaz"* ]] && [[ "$line" != *"grep"*"foobarbaz"* ]] && [[ "$line" != *"IFS"* ]]; then
+                                    content="${line#+}"
+                                    echo "$current_file:$line_num:$content"
+                                fi
+                            fi
+                        done < changes.diff
+
+                        # Check if we found any matches
+                        if ! grep -q '^+.*foobarbaz' changes.diff; then
                             echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                         fi
                     '''
