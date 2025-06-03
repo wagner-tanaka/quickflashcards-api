@@ -19,26 +19,19 @@ pipeline {
                         git diff main...HEAD > changes.diff
 
                         echo "Linhas adicionadas no PR com 'foobarbaz':"
-
-                        # Create a script to process the diff
-                        cat > process_diff.awk << 'EOF'
-/^\\+\\+\\+ b\\// {
-    current_file = substr($0, 7)
-    line_num = 0
-}
-/^@@.*\\+/ {
-    match($0, /\\+([0-9]+)/, arr)
-    if (arr[1]) line_num = arr[1] - 1
-}
-/^\\+/ {
-    line_num++
-    if ($0 ~ /foobarbaz/ && $0 !~ /echo.*foobarbaz/ && $0 !~ /grep.*foobarbaz/ && $0 !~ /awk.*foobarbaz/ && $0 !~ /cat.*foobarbaz/) {
-        print current_file ":" line_num ":" substr($0, 2)
-    }
-}
-EOF
-
-                        awk -f process_diff.awk changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
+                        awk '
+                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7); line_num = 0 }
+                        /^@@.*\\+/ {
+                            match($0, /\\+([0-9]+)/, arr)
+                            if (arr[1]) line_num = arr[1] - 1
+                        }
+                        /^\\+/ {
+                            line_num++
+                            if ($0 ~ /foobarbaz/ && $0 !~ /echo.*foobarbaz/ && $0 !~ /grep.*foobarbaz/ && $0 !~ /awk.*foobarbaz/) {
+                                print current_file ":" line_num ":" substr($0, 2)
+                            }
+                        }
+                        ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
                     '''
                 }
             }
