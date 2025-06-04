@@ -26,13 +26,15 @@ pipeline {
 
                         echo "Enviando alterações para análise pela IA local..."
 
-                        AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d '{
-                            "model": "gemma3:1b",
-                            "prompt": "Leia o seguinte diff e aponte palavras escritas incorretamente em inglês:\\n'"$(cat changes.diff | sed 's/"/\\\\"/g')"'",
-                            "stream": false
-                        }' | jq -r .response)
+                        PROMPT=$(jq -Rs . < changes.diff)
 
-                        echo "Respostas da IA:"
+                        AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d "{
+                            \\"model\\": \\"gemma3:1b\\",
+                            \\"prompt\\": \\"Leia o seguinte diff e identifique palavras escritas incorretamente em inglês:\\n\\" $PROMPT,
+                            \\"stream\\": false
+                        }" | jq -r .response)
+
+                        echo "Resposta da IA:"
                         echo "$AI_RESPONSE"
                     '''
                 }
