@@ -29,19 +29,23 @@ pipeline {
                             file = substr($0, 7);
                         }
                         /^@@/ {
-                            match($0, /\\+([0-9]+)/, arr);
-                            line = arr[1];
+                            # extrai número da linha da direita (ex: +42)
+                            split($0, parts, "\\+");
+                            split(parts[2], nums, ",");
+                            line = nums[1];
                         }
                         /^\\+[^\\+]/ {
                             print file ":" line ": " substr($0, 2);
                             line++;
                         }
+                        '
                     '''
                 }
             }
         }
     }
 }
+
 
 
 // show added lines in pr, missing the file name and changed line
