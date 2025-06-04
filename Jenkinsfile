@@ -35,8 +35,8 @@ pipeline {
                             line = nums[1];
                         }
                         /^\\+[^\\+]/ {
-                            printf "File: %s, Line: %d - %s\\n", file, line, substr($0, 2);
                             line++;
+                            printf "File: %s, Line: %d - %s\\n", file, line, substr($0, 2);
                         }
                         ' > added_lines.txt
 
