@@ -13,7 +13,7 @@ pipeline {
                 ]) {
                     sh '''
                         echo "🐍 Executando script Python de análise..."
-                        python3 /var/jenkins_home/jenkins-review.py
+                        python3 jenkins-review.py
                     '''
                 }
             }
