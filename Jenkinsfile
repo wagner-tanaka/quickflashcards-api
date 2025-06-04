@@ -18,12 +18,6 @@ pipeline {
                         git fetch origin main:main
                         git diff main...HEAD > changes.diff
 
-                        echo "Linhas adicionadas no PR com 'foobarbaz':"
-                        awk '
-                        /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
-                        /^\\+.*foobarbaz/ { print current_file ":" $0 }
-                        ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
-
                         echo "Enviando alterações para análise pela IA local..."
 
                         PROMPT=$(jq -Rs . < changes.diff)
