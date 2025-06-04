@@ -47,10 +47,7 @@ pipeline {
 
                         PROMPT=$(jq -Rs . < added_lines.txt)
 
-                        JSON=$(jq -n \
-                          --arg prompt "Analise as seguintes linhas de código que foram adicionadas.\\n\\nAponte apenas onde há algo potencialmente errado e o que esta errado.\\n\\nResponda usando este formato:\\nFile: NOME_DO_ARQUIVO, Line: NÚMERO - O que esta errado\\n\\nLinhas:\\n" \
-                          --arg text "$PROMPT" \
-                          --arg model "gemma3:1b" '{
+                        JSON=$(jq -n --arg prompt "Analise as seguintes linhas de código que foram adicionadas. Aponte apenas onde há algo potencialmente errado, incluindo o nome do arquivo, a linha, e o problema. Não corrija, apenas aponte com clareza.\\n" --arg text "$PROMPT" --arg model "gemma3:1b" '{
                             model: $model,
                             prompt: ($prompt + $text),
                             stream: false
