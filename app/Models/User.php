@@ -23,4 +23,9 @@ class User extends Authenticatable
     {
         return $a + $b;
     }
+
+    public function sumTest1(int $a, int $b): string
+    {
+        return $a + $b;
+    }
 }
