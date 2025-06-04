@@ -19,4 +19,8 @@ class User extends Authenticatable
         return $this->hasMany(Deck::class);
     }
 
+    public function sumTest(int $a, int $b): string
+    {
+        return $a + $b;
+    }
 }
