@@ -19,35 +19,33 @@ pipeline {
 
                         git fetch origin main:main
 
-                        echo "🆕 Mudanças neste PR:"
-                        echo "===================="
+                        echo "🆕 Linhas adicionadas neste PR:"
 
-                        # Simple approach: show the diff with context
-                        git diff main...HEAD --no-color --unified=1 | grep -E '^(\\+\\+\\+|\@\@|\\+[^+])' | while read -r line; do
-                            case "$line" in
-                                +++*)
-                                    echo ""
-                                    echo "📁 Arquivo: ${line#*b/}"
-                                    echo "----------------------------------------"
-                                    ;;
-                                @@*)
-                                    # Extract line info from @@ format
-                                    echo "📍 $line"
-                                    ;;
-                                +*)
-                                    echo "  ➕ ${line#?}"
-                                    ;;
-                            esac
-                        done
-
-                        echo ""
-                        echo "===================="
+                        git diff main...HEAD --unified=0 | awk '
+                        /^diff --git/ {
+                            file = "";
+                        }
+                        /^\\+\\+\\+ b\\// {
+                            file = substr($0, 7);
+                        }
+                        /^@@/ {
+                            # extrai número da linha da direita (ex: +42)
+                            split($0, parts, "\\+");
+                            split(parts[2], nums, ",");
+                            line = nums[1];
+                        }
+                        /^\\+[^\\+]/ {
+                            print file ":" line ": " substr($0, 2);
+                            line++;
+                        }
+                        '
                     '''
                 }
             }
         }
     }
 }
+
 
 
 // show added lines in pr, missing the file name and changed line
