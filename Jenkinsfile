@@ -36,6 +36,7 @@ pipeline {
                             print file ":" line ": " substr($0, 2);
                             line++;
                         }
+                        '
                     '''
                 }
             }
