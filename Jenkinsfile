@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Mostrar linhas adicionadas no PR e analisar com AI') {
+        stage('Analisar linhas adicionadas com IA') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -16,21 +16,23 @@ pipeline {
                         echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
                         git fetch origin main:main
-                        git diff main...HEAD > changes.diff
 
-                        echo "Enviando alterações para análise pela IA local..."
+                        echo "Extraindo linhas adicionadas..."
+                        git diff main...HEAD | grep '^+[^+]' | sed 's/^+//' > added_lines.txt
 
-                        PROMPT=$(jq -Rs . < changes.diff)
+                        echo "Enviando linhas adicionadas para a IA local..."
 
-                        JSON=$(jq -n --arg prompt "Leia o seguinte diff e identifique palavras escritas incorretamente em inglês:\\n" --arg diff "$PROMPT" --arg model "gemma3:1b" '{
+                        PROMPT=$(jq -Rs . < added_lines.txt)
+
+                        JSON=$(jq -n --arg prompt "Liste as palavras escritas incorretamente em inglês neste texto:\\n" --arg text "$PROMPT" --arg model "gemma3:1b" '{
                             model: $model,
-                            prompt: ($prompt + $diff),
+                            prompt: ($prompt + $text),
                             stream: false
                         }')
 
                         AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d "$JSON" | jq -r .response)
 
-                        echo "Resposta da IA:"
+                        echo "🧠 Resposta da IA:"
                         echo "$AI_RESPONSE"
                     '''
                 }
