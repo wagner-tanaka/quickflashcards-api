@@ -21,7 +21,7 @@ pipeline {
 
                         echo "🆕 Linhas adicionadas neste PR:"
 
-                        # Extrair linhas adicionadas com nome do arquivo e número da linha
+                        # Coleta as linhas adicionadas com nome do arquivo e linha
                         git diff main...HEAD --unified=0 | awk '
                         /^diff --git/ {
                             file = "";
@@ -47,10 +47,7 @@ pipeline {
 
                         PROMPT=$(jq -Rs . < added_lines.txt)
 
-                        JSON=$(jq -n \
-                          --arg prompt "Você é um revisor de código. Analise as linhas abaixo como um bloco de código completo, especialmente métodos ou funções.\\n\\nAponte apenas onde há um erro real ou potencial, como retorno incorreto, tipo incompatível, uso indevido de linguagem ou lógica errada.\\n\\nPara cada erro, responda com:\\nFile: NOME_DO_ARQUIVO, Line: NÚMERO - Descrição clara do problema.\\n\\nSe não houver erro, diga apenas: Nenhum problema encontrado.\\n\\nLinhas analisadas:\\n" \
-                          --arg text "$PROMPT" \
-                          --arg model "gemma3:1b" '{
+                        JSON=$(jq -n --arg prompt "Analise as seguintes linhas de código que foram adicionadas. Aponte apenas onde há algo potencialmente errado, incluindo o nome do arquivo, a linha, e o problema. Não corrija, apenas aponte com clareza.\\n" --arg text "$PROMPT" --arg model "gemma3:1b" '{
                             model: $model,
                             prompt: ($prompt + $text),
                             stream: false
@@ -67,7 +64,6 @@ pipeline {
         }
     }
 }
-
 
 
 

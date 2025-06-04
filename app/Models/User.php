@@ -68,4 +68,14 @@ class User extends Authenticatable
     {
         return $a . 'foo';
     }
+
+    public function func5(string $a): int
+    {
+        return $a . 'foo';
+    }
+
+    public function func6(string $a): int
+    {
+        return $a . 'foo';
+    }
 }
