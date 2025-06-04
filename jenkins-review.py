@@ -19,7 +19,12 @@ for line in diff.splitlines():
     elif line.startswith("@@"):
         parts = line.split("+")
         if len(parts) > 1:
-            current_line = int(parts[1].split(",")[0])
+            right_chunk = parts[1].split(" ")[0]  # Ex: '26,4' ou '42'
+            line_number = right_chunk.split(",")[0]
+            try:
+                current_line = int(line_number)
+            except ValueError:
+                current_line = 0
     elif line.startswith("+") and not line.startswith("++"):
         lines.append(f"File: {current_file}, Line: {current_line} - {line[1:]}")
         current_line += 1
