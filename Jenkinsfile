@@ -20,13 +20,61 @@ pipeline {
                         git fetch origin main:main
 
                         echo "🆕 Linhas adicionadas neste PR:"
-                        git diff main...HEAD | grep '^+[^+]' | sed 's/^+//' || echo "Nenhuma linha adicionada encontrada."
+
+                        git diff main...HEAD --unified=0 | awk '
+                        /^diff --git/ {
+                            file="";
+                        }
+                        /^+++ b\\// {
+                            file=substr($0, 7);
+                        }
+                        /^@@/ {
+                            match($0, /\\+([0-9]+)/, arr);
+                            line=arr[1];
+                        }
+                        /^[+][^+]/ {
+                            print file ":" line ": " substr($0, 2);
+                            line++;
+                        }
+                        '
                     '''
                 }
             }
         }
     }
 }
+
+
+// show added lines in pr, missing the file name and changed line
+// pipeline {
+//     agent any
+//
+//     stages {
+//         stage('Visualizar linhas adicionadas no PR') {
+//             steps {
+//                 withCredentials([
+//                     usernamePassword(
+//                         credentialsId: 'e92cb10e-0dd1-4142-a0fb-29a9488e3116',
+//                         usernameVariable: 'GIT_USER',
+//                         passwordVariable: 'GIT_TOKEN'
+//                     )
+//                 ]) {
+//                     sh '''
+//                         echo "🔍 Buscando linhas adicionadas no PR..."
+//
+//                         git config --global credential.helper store
+//                         echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
+//
+//                         git fetch origin main:main
+//
+//                         echo "🆕 Linhas adicionadas neste PR:"
+//                         git diff main...HEAD | grep '^+[^+]' | sed 's/^+//' || echo "Nenhuma linha adicionada encontrada."
+//                     '''
+//                 }
+//             }
+//         }
+//     }
+// }
 
 
 // Conexao com IA local
