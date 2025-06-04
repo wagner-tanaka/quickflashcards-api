@@ -26,6 +26,8 @@ class CardUpdateRequest extends FormRequest
             'front' => 'required|string',
             'back' => 'required|string',
             'pronunciation' => 'nullable|string',
+            'rarity' => 'nullable|string|in:common,uncommon,rare',
+            'usage' => 'nullable|string|in:normal,formal,written',
             'image_path' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
             'phrases' => 'nullable|string',

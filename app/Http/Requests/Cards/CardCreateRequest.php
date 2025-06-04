@@ -26,6 +26,8 @@ class CardCreateRequest extends FormRequest
             'front' => 'required|string|max:255',
             'back' => 'required|string',
             'pronunciation' => 'nullable|string',
+            'rarity' => 'nullable|string|in:common,uncommon,rare',
+            'usage' => 'nullable|string|in:normal,formal,written',
             'image' => 'nullable|image|max:2048',
             'phrases' => 'nullable|string',
             'phrases.*' => 'string'
