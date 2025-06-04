@@ -2,26 +2,58 @@ pipeline {
     agent any
 
     stages {
-        stage('Testar conexão com IA local') {
+        stage('Visualizar linhas adicionadas no PR') {
             steps {
-                sh '''
-                    echo "🔌 Testando conexão com IA local..."
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'e92cb10e-0dd1-4142-a0fb-29a9488e3116',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        echo "🔍 Buscando linhas adicionadas no PR..."
 
-                    JSON=$(jq -n --arg prompt "Se você recebeu esta mensagem corretamente, responda apenas com: recebido com sucesso." --arg model "gemma3:1b" '{
-                        model: $model,
-                        prompt: $prompt,
-                        stream: false
-                    }')
+                        git config --global credential.helper store
+                        echo "https://${GIT_USER}:${GIT_TOKEN}@github.com" > ~/.git-credentials
 
-                    AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d "$JSON" | jq -r .response)
+                        git fetch origin main:main
 
-                    echo "🧠 Resposta da IA:"
-                    echo "$AI_RESPONSE"
-                '''
+                        echo "🆕 Linhas adicionadas neste PR:"
+                        git diff main...HEAD | grep '^+[^+]' | sed 's/^+//' || echo "Nenhuma linha adicionada encontrada."
+                    '''
+                }
             }
         }
     }
 }
+
+
+// Conexao com IA local
+// pipeline {
+//     agent any
+//
+//     stages {
+//         stage('Testar conexão com IA local') {
+//             steps {
+//                 sh '''
+//                     echo "Testando conexão com IA local..."
+//
+//                     JSON=$(jq -n --arg prompt "Se você recebeu esta mensagem corretamente, responda apenas com: recebido com sucesso." --arg model "gemma3:1b" '{
+//                         model: $model,
+//                         prompt: $prompt,
+//                         stream: false
+//                     }')
+//
+//                     AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d "$JSON" | jq -r .response)
+//
+//                     echo "Resposta da IA:"
+//                     echo "$AI_RESPONSE"
+//                 '''
+//             }
+//         }
+//     }
+// }
 
 
 // jenkins sending diff to ai
