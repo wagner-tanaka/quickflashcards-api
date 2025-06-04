@@ -19,24 +19,29 @@ pipeline {
 
                         git fetch origin main:main
 
-                        echo "🆕 Linhas adicionadas neste PR:"
+                        echo "🆕 Mudanças neste PR:"
+                        echo "===================="
 
-                        git diff main...HEAD --unified=0 | awk '
-                        /^diff --git/ {
-                            file = "";
-                        }
-                        /^\\+\\+\\+ b\\// {
-                            file = substr($0, 7);
-                        }
-                        /^@@/ {
-                            match($0, /\\+([0-9]+)/, arr);
-                            line = arr[1];
-                        }
-                        /^\\+[^\\+]/ {
-                            print file ":" line ": " substr($0, 2);
-                            line++;
-                        }
-                        '
+                        # Simple approach: show the diff with context
+                        git diff main...HEAD --no-color --unified=1 | grep -E '^(\\+\\+\\+|\@\@|\\+[^+])' | while read -r line; do
+                            case "$line" in
+                                +++*)
+                                    echo ""
+                                    echo "📁 Arquivo: ${line#*b/}"
+                                    echo "----------------------------------------"
+                                    ;;
+                                @@*)
+                                    # Extract line info from @@ format
+                                    echo "📍 $line"
+                                    ;;
+                                +*)
+                                    echo "  ➕ ${line#?}"
+                                    ;;
+                            esac
+                        done
+
+                        echo ""
+                        echo "===================="
                     '''
                 }
             }
