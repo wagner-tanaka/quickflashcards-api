@@ -28,11 +28,13 @@ pipeline {
 
                         PROMPT=$(jq -Rs . < changes.diff)
 
-                        AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d "{
-                            \\"model\\": \\"gemma3:1b\\",
-                            \\"prompt\\": \\"Leia o seguinte diff e identifique palavras escritas incorretamente em inglês:\\n\\" $PROMPT,
-                            \\"stream\\": false
-                        }" | jq -r .response)
+                        JSON=$(jq -n --arg prompt "Leia o seguinte diff e identifique palavras escritas incorretamente em inglês:\\n" --arg diff "$PROMPT" --arg model "gemma3:1b" '{
+                            model: $model,
+                            prompt: ($prompt + $diff),
+                            stream: false
+                        }')
+
+                        AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d "$JSON" | jq -r .response)
 
                         echo "Resposta da IA:"
                         echo "$AI_RESPONSE"
