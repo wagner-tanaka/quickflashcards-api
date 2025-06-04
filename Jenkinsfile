@@ -35,7 +35,7 @@ pipeline {
                             line = nums[1];
                         }
                         /^\\+[^\\+]/ {
-                            print file ":" line ": " substr($0, 2);
+                            printf "File: %s, Line: %d - %s\\n", file, line, substr($0, 2);
                             line++;
                         }
                         '
@@ -45,6 +45,7 @@ pipeline {
         }
     }
 }
+
 
 
 
