@@ -21,35 +21,22 @@ pipeline {
 
                         echo "🆕 Linhas adicionadas neste PR:"
 
-                        # Option 1: Show filename, line number, and content
                         git diff main...HEAD --unified=0 | awk '
-                        /^diff --git/ { file = $4; gsub(/^b\//, "", file) }
-                        /^@@/ {
-                            match($0, /\+([0-9]+)/, arr)
-                            line_start = arr[1]
-                            line_count = 0
+                        /^diff --git/ {
+                            file="";
                         }
-                        /^\+[^+]/ {
-                            line_count++
-                            current_line = line_start + line_count - 1
-                            content = substr($0, 2)
-                            printf "📁 %s:%d | %s\n", file, current_line, content
-                        }'
-
-                        echo ""
-                        echo "📊 Resumo por arquivo:"
-
-                        # Option 2: Summary by file
-                        git diff main...HEAD --numstat | while read added removed file; do
-                            if [ "$added" != "-" ] && [ "$added" -gt 0 ]; then
-                                echo "📄 $file: +$added linhas adicionadas"
-                            fi
-                        done
-
-                        # Check if no changes found
-                        if [ $(git diff main...HEAD --numstat | wc -l) -eq 0 ]; then
-                            echo "Nenhuma linha adicionada encontrada."
-                        fi
+                        /^+++ b\\// {
+                            file=substr($0, 7);
+                        }
+                        /^@@/ {
+                            match($0, /\\+([0-9]+)/, arr);
+                            line=arr[1];
+                        }
+                        /^[+][^+]/ {
+                            print file ":" line ": " substr($0, 2);
+                            line++;
+                        }
+                        '
                     '''
                 }
             }
