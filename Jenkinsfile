@@ -5,9 +5,9 @@ pipeline {
         stage('Testar conexão com IA local') {
             steps {
                 sh '''
-                    echo "Testando conexão com IA local..."
+                    echo "🔌 Testando conexão com IA local..."
 
-                    JSON=$(jq -n --arg prompt "Diga apenas: conexão com a IA local funcionando." --arg model "gemma3:1b" '{
+                    JSON=$(jq -n --arg prompt "Se você recebeu esta mensagem corretamente, responda apenas com: recebido com sucesso." --arg model "gemma3:1b" '{
                         model: $model,
                         prompt: $prompt,
                         stream: false
@@ -22,6 +22,7 @@ pipeline {
         }
     }
 }
+
 
 // jenkins sending diff to ai
 // pipeline {
