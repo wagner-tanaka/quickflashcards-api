@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Mostrar linhas adicionadas no PR') {
+        stage('Mostrar linhas adicionadas no PR e analisar com AI') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -23,6 +23,17 @@ pipeline {
                         /^\\+\\+\\+ b\\// { current_file = substr($0, 7) }
                         /^\\+.*foobarbaz/ { print current_file ":" $0 }
                         ' changes.diff || echo "Nenhuma linha adicionada com 'foobarbaz' encontrada."
+
+                        echo "Enviando alterações para análise pela IA local..."
+
+                        AI_RESPONSE=$(curl -s http://host.docker.internal:11434/api/generate -d '{
+                            "model": "gemma3:1b",
+                            "prompt": "Leia o seguinte diff e aponte palavras escritas incorretamente em inglês:\\n'"$(cat changes.diff | sed 's/"/\\\\"/g')"'",
+                            "stream": false
+                        }' | jq -r .response)
+
+                        echo "Resposta da IA:"
+                        echo "$AI_RESPONSE"
                     '''
                 }
             }
