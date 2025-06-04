@@ -32,7 +32,7 @@ pipeline {
                             "stream": false
                         }' | jq -r .response)
 
-                        echo "Resposta da IA:"
+                        echo "Respostas da IA:"
                         echo "$AI_RESPONSE"
                     '''
                 }
