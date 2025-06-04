@@ -25,24 +25,25 @@ pipeline {
                         /^diff --git/ {
                             file="";
                         }
-                        /^+++ b\\// {
+                        /^\\+\\+\\+ b\\// {
                             file=substr($0, 7);
                         }
                         /^@@/ {
                             match($0, /\\+([0-9]+)/, arr);
                             line=arr[1];
                         }
-                        /^[+][^+]/ {
+                        /^\\+[^+]/ {
                             print file ":" line ": " substr($0, 2);
                             line++;
                         }
-                        '
+                        ' || echo "Nenhuma linha adicionada encontrada."
                     '''
                 }
             }
         }
     }
 }
+
 
 
 // show added lines in pr, missing the file name and changed line
