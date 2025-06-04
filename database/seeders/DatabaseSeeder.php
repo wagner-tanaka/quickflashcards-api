@@ -88,6 +88,8 @@ class DatabaseSeeder extends Seeder
                 'deck_id' => $deck->id,
                 'front' => $englishWord,
                 'back' => $translation,
+                'rarity' => 'common',
+                'usage' => 'normal',
                 'review_level' => rand(1, 5),
                 'last_reviewed_date' => now(),
                 'next_review_date' => now()->addDays(rand(1, 5)),

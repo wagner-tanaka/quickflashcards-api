@@ -23,6 +23,8 @@ class CreateCardAction
             'front' => $data['front'],
             'back' => $data['back'],
             'pronunciation' => $data['pronunciation'] ?? null,
+            'rarity' => $data['rarity'] ?? null,
+            'usage' => $data['usage'] ?? null,
         ]);
     }
 
