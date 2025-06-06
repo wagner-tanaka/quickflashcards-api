@@ -11,7 +11,10 @@ class DeckController extends Controller
 {
     public function index(): JsonResponse
     {
-        $decks = auth()->user()->decks;
+        $decks = auth()->user()
+            ->decks()
+            ->orderByDesc('created_at')
+            ->get();
         return response()->json($decks);
     }
 
