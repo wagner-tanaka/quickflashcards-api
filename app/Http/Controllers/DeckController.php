@@ -23,7 +23,7 @@ class DeckController extends Controller
     public function store(DeckCreateRequest $request): JsonResponse
     {
         $data = $request->validated();
-        
+
         // Set display_order to be the maximum existing order + 1 for this user
         $maxOrder = auth()->user()->decks()->max('display_order') ?? -1;
         $data['display_order'] = $maxOrder + 1;
@@ -57,9 +57,9 @@ class DeckController extends Controller
     public function reorder(DeckReorderRequest $request, ReorderDecksAction $action): JsonResponse
     {
         $data = $request->validated();
-        
+
         $decks = $action->execute($data['deck_orders'], auth()->id());
-        
+
         return response()->json([
             'message' => 'Decks reordered successfully.',
             'decks' => $decks
