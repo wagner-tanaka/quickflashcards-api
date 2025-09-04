@@ -9,6 +9,7 @@ class Deck extends Model
     protected $fillable = [
         'name',
         'description',
+        'display_order',
     ];
 
     public function user()

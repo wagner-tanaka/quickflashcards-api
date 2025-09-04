@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // deck
     Route::resource('decks', DeckController::class);
+    Route::put('decks/reorder', [DeckController::class, 'reorder'])->name('decks.reorder');
 
 
     // deck cards
